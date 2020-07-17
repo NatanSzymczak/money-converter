@@ -1,13 +1,74 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <link rel="stylesheet" href="style.css">
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script defer src="scripts.js"></script>
-  <title>Document</title>
+  <title>Przelicznik walut</title>
 </head>
 <body>
+
+  <div class="container">
+
+    <div class="alert alert-info text-center boxInfo" role="alert">
+      A money converter is a calculator that exchanges the value of one currency into the relative value of the chosen currency.
+    </div>
+
+    <div class="input-group my-3">
+      <div>
+        <div id="flagIn" class="flag flag-pln"></div>
+      </div>
+      <select class="custom-select" id="selectIn">
+        <option value="pln" selected>PLN - Polish zloty</option>
+        <option value="eur">EUR - Euro</option>
+        <option value="usd">USD - US dollar</option>
+        <option value="chf">CHF - Swiss franc</option>
+      </select>
+      <input type="text" class="form-control" placeholder="I have :">
+      <div class="input-group-append">
+        <label class="input-group-text" for="selectIn">zł</label>
+      </div>
+    </div>
+
+    <div class="text-center bi bi-arrow-down-up align-middle my-3 h2">
+      <button id="swapInputs" type="button" class="btn btn-outline-info">
+        <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-arrow-down-up" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" d="M11 3.5a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5z"/>
+          <path fill-rule="evenodd" d="M10.646 2.646a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L11 3.707 8.354 6.354a.5.5 0 1 1-.708-.708l3-3zm-9 7a.5.5 0 0 1 .708 0L5 12.293l2.646-2.647a.5.5 0 1 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z"/>
+          <path fill-rule="evenodd" d="M5 2.5a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-1 0V3a.5.5 0 0 1 .5-.5z"/>
+        </svg>
+      </button>
+    </div>
+    <div class="input-group mb-3">
+      <div>
+      <div id="flagOut" class="flag flag-eur"></div>
+      </div>
+      <select class="custom-select" id="selectOut">
+        <option value="pln">PLN - Polish zloty</option>
+        <option value="eur" selected>EUR - Euro</option>
+        <option value="usd">USD - US dollar</option>
+        <option value="chf">CHF - Swiss franc</option>
+      </select>
+      <input readonly type="text" class="form-control bg-light" value="0,00">
+      <div class="input-group-append">
+        <label class="input-group-text" for="selectOut">€</label>
+      </div>
+    </div>
+
+
+
+    <button type="button" class="btn btn-info btn-lg btn-block">Check rate</button>
+
+  </div>
+
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
 
 </body>
 </html>
