@@ -3,8 +3,12 @@ let selectOut;
 let swapInputs;
 let checkRateBtn;
 let moneyYouHave;
+let amountMoney;
+let localHistory;
+let rowHistory;
+let history = [];
+let currId = 1;
 const MAIN_UNIT = 1;
-const history = [];
 const loaderIcon = document.createElement('span');
 const textMainBtn = document.createElement('strong');
 textMainBtn.innerText = 'Check rate';
@@ -45,10 +49,11 @@ const calculateExchangeRate = (values) => {
   console.log(currOut);
 
 
-  let amountMoney = (moneyYouHave.value*(currIn/currOut)).toFixed(2);
+  amountMoney = (moneyYouHave.value*(currIn/currOut)).toFixed(2);
 
   document.querySelector('#moneyYouWant').value = amountMoney;
 
+  addToHistory();
 }
 
 
@@ -71,11 +76,64 @@ const checkInputValue = () => {
 };
 
 
+const getTimeNow = () => {
+  const time = new Date();
+
+  const now = {
+    year:   time.getFullYear(),
+    month:  time.getMonth(),
+    day:    time.getDate(),
+    hour:   time.getHours(),
+    minute: time.getMinutes(),
+    second: time.getSeconds(),
+  }
+
+  for (let unit in now) if (now[unit] < 10) now[unit] = '0' + now[unit];
+  const timeNow = `${now.year}.${now.month}.${now.day} | ${now.hour}:${now.minute}:${now.second}`;
+
+  return timeNow;
+};
+
+
+const addToHistory = () => {
+
+  console.log(selectIn.value)
+  console.log(selectOut.value)
+
+
+  rowHistory = {
+    id:         currId,
+    time:       getTimeNow(),
+    amount:     moneyYouHave.value,
+    from:       selectIn.value,
+    newAmount:  amountMoney,
+    to:         selectOut.value,
+  };
+
+  history.push(rowHistory);
+
+  localStorage.setItem(currId , JSON.stringify(rowHistory));
+  currId++;
+
+
+  console.log(history);
+
+
+  let tr = document.createElement('tr');
+
+  for (let elem in rowHistory) {
+    let td = document.createElement('td');
+    td.innerText = rowHistory[elem];
+    tr.appendChild(td);
+  }
+
+  document.querySelector('#historyTable').appendChild(tr);
+
+};
+
 
 const clickCheckRateBtn = () => {
   if (!checkInputValue()) return 0;
-
-  addToHistory();
 
   loaderIcon.classList.add('spinner-border', 'spinner-border-lg');
   checkRateBtn.disabled = true;
@@ -170,6 +228,38 @@ document.addEventListener('DOMContentLoaded', () => {
   checkRateBtn = document.querySelector('#checkRateBtn');
   checkRateBtn.addEventListener('click', clickCheckRateBtn);
 
-
   checkRateBtn.appendChild(textMainBtn);
+
+  if(localStorage.length!==0) {
+    for (let i=0; i<localStorage.length;i++) {
+      let rowLocalStorage = JSON.parse(
+        localStorage.getItem(
+          localStorage.key(i) ));
+
+      history.push({
+        id:         rowLocalStorage.id,
+        time:       rowLocalStorage.time,
+        amount:     rowLocalStorage.amount,
+        from:       rowLocalStorage.from.toUpperCase(),
+        newAmount:  rowLocalStorage.newAmount,
+        to:         rowLocalStorage.to.toUpperCase(),
+      });
+
+      currId = localStorage.length + 1;
+    }
+
+    for (let i=1; i<=history.length; i++) {
+      let row = history.find(curr => curr.id === i);
+      let tr = document.createElement('tr');
+      for (let e in row) {
+        let td = document.createElement('td');
+        td.innerText = row[e];
+        if (e==='amount' || e==='newAmount') td.classList.add('text-right','border-left');
+        if (e==='id' || e==='time') td.classList.add('text-center');
+
+        tr.appendChild(td);
+      };
+      document.querySelector('#historyTable').appendChild(tr);
+    }
+  }
 });
