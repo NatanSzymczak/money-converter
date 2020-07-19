@@ -13,23 +13,23 @@
 
   <div class="container">
 
-    <div class="alert alert-info text-center boxInfo" role="alert">
+    <div class="alert alert-info text-center font-weight-bold boxInfo" id="infoBar">
       A money converter is a calculator that exchanges the value of one currency into the relative value of the chosen currency.
     </div>
 
     <div class="input-group my-3">
       <div>
-        <div id="flagIn" class="flag flag-pln"></div>
+        <div id="flagIn" class="flag flag-eur"></div>
       </div>
       <select class="custom-select" id="selectIn">
-        <option value="pln" selected>PLN - Polish zloty</option>
-        <option value="eur">EUR - Euro</option>
+        <option value="pln">PLN - Polish zloty</option>
+        <option value="eur" selected>EUR - Euro</option>
         <option value="usd">USD - US dollar</option>
         <option value="chf">CHF - Swiss franc</option>
       </select>
-      <input type="text" class="form-control" placeholder="I have :">
+      <input type="text" class="form-control" placeholder="I have :" id="moneyYouHave">
       <div class="input-group-append">
-        <label class="input-group-text" for="selectIn">zł</label>
+        <label class="input-group-text" for="selectIn">€</label>
       </div>
     </div>
 
@@ -44,23 +44,27 @@
     </div>
     <div class="input-group mb-3">
       <div>
-      <div id="flagOut" class="flag flag-eur"></div>
+      <div id="flagOut" class="flag flag-pln"></div>
       </div>
       <select class="custom-select" id="selectOut">
-        <option value="pln">PLN - Polish zloty</option>
-        <option value="eur" selected>EUR - Euro</option>
+        <option value="pln" selected>PLN - Polish zloty</option>
+        <option value="eur">EUR - Euro</option>
         <option value="usd">USD - US dollar</option>
         <option value="chf">CHF - Swiss franc</option>
       </select>
-      <input readonly type="text" class="form-control bg-light" value="0,00">
+      <input readonly type="text" class="form-control bg-light" value="0,00" id="moneyYouWant">
       <div class="input-group-append">
-        <label class="input-group-text" for="selectOut">€</label>
+        <label class="input-group-text" for="selectOut">zł</label>
       </div>
     </div>
 
 
 
-    <button type="button" class="btn btn-info btn-lg btn-block">Check rate</button>
+    <button class="btn btn-info btn-lg btn-block align-center" type="button" id="checkRateBtn">
+
+    </button>
+
+
 
   </div>
 
