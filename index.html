@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script defer src="scripts.js"></script>
-  <title>Przelicznik walut</title>
+  <title>Money Converter</title>
 </head>
 <body>
 
@@ -60,9 +60,7 @@
 
 
 
-    <button class="btn btn-info btn-lg btn-block align-center" type="button" id="checkRateBtn">
-
-    </button>
+    <button class="btn btn-info btn-lg btn-block align-center" type="button" id="checkRateBtn"></button>
 
 
 
@@ -70,12 +68,19 @@
     <table class="table table-sm table-info mt-3 rounded">
       <thead>
         <tr>
-          <th scope="col" class="text-center">#</th>
-          <th scope="col" class="text-center">TIME</th>
-          <th scope="col" class="text-right">FROM</th>
+          <th scope="col" class="text-center align-middle">#</th>
+          <th scope="col" class="text-center align-middle">TIME</th>
+          <th scope="col" class="text-right  align-middle">FROM</th>
           <th scope="col"></th>
-          <th scope="col" class="text-right">TO</th>
-          <th scope="col"></th>
+          <th scope="col" class="text-right align-middle">TO</th>
+          <th scope="col" class="text-right">
+            <button class="btn btn-outline-danger btn-sm px-1" type="button" id="clearLocalStorage" title="Clear History">
+              <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-x" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708-.708l7-7a.5.5 0 0 1 .708 0z"/>
+                <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 0 0 0 .708l7 7a.5.5 0 0 0 .708-.708l-7-7a.5.5 0 0 0-.708 0z"/>
+              </svg>
+            </button>
+          </th>
         </tr>
       </thead>
       <tbody id="historyTable">

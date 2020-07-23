@@ -1,17 +1,91 @@
-let selectIn;
-let selectOut;
-let swapInputs;
-let checkRateBtn;
-let moneyYouHave;
-let amountMoney;
-let localHistory;
-let rowHistory;
-let history = [];
-let currId = 1;
-const MAIN_UNIT = 1;
-const loaderIcon = document.createElement('span');
-const textMainBtn = document.createElement('strong');
-textMainBtn.innerText = 'Check rate';
+let moneyHave,
+    moneyWant,
+    localHistory,
+    RowHistory,
+    history = [],
+    currentId = 1;
+
+const UNIT_OF_MAIN_CURRENCY = 1,
+      selectIn      = document.querySelector('#selectIn'),
+      selectOut     = document.querySelector('#selectOut'),
+      swapInputs    = document.querySelector('#swapInputs'),
+      checkRateBtn  = document.querySelector('#checkRateBtn'),
+      loaderIconTag = document.createElement('span'),
+      textOnMainBtn = document.createElement('strong');
+
+
+function changeViewCurrencyRow () {
+  let flagClass = this.id === 'selectIn' ? '#flagIn' : '#flagOut';
+  let flag = document.querySelector(flagClass);
+  let label = document.querySelector(`label[for='${this.id}']`);
+  flag.className = '';
+
+  switch (this.value) {
+    case 'pln':
+      flag.classList.add('flag','flag-pln');
+      label.innerText = 'zł';
+    break;
+
+    case 'eur':
+      flag.classList.add('flag','flag-eur');
+      label.innerText = '€';
+    break;
+
+    case 'usd':
+      flag.classList.add('flag','flag-usd');
+      label.innerText = '$';
+    break;
+
+    case 'chf':
+      flag.classList.add('flag','flag-chf');
+      label.innerText = 'fr';
+    break;
+  }
+};
+
+
+const swapCurrencyRow = () => {
+  const labelUp   = document.querySelector(`label[for='selectIn']`),
+        labelDown = document.querySelector(`label[for='selectOut']`),
+        flagUp    = document.querySelector('#flagIn'),
+        flagDown  = document.querySelector('#flagOut'),
+        valueIn   = selectIn.value,
+        valueOut  = selectOut.value,
+        textUp    = labelUp.innerText,
+        textDown  = labelDown.innerText;
+
+  labelUp.innerText   = textDown;
+  labelDown.innerText = textUp;
+
+  flagUp.className   = '';
+  flagUp.classList.add('flag',`flag-${selectOut.value}`);
+  flagDown.className = '';
+  flagDown.classList.add('flag',`flag-${selectIn.value}`);
+
+  selectIn.value =  valueOut;
+  selectOut.value = valueIn;
+};
+
+
+const checkInputValue = () => {
+  const infoBarTag = document.querySelector('#infoBar');
+  const moneyYouHaveTag = document.querySelector('#moneyYouHave');
+  moneyHave = moneyYouHaveTag.value.split(',').join('.');
+
+  if (Boolean(+moneyHave) === false) {
+    infoBarTag.innerText = "Warning!\nThe value entered is not a number.";
+    infoBarTag.classList.replace('alert-info', 'alert-danger');
+    moneyYouHaveTag.classList.add('border-danger');
+    return 0;
+  }else if (infoBarTag.classList.contains('alert-danger')) {
+    infoBarTag.classList.replace('alert-danger', 'alert-info');
+    infoBarTag.innerText = 'A money converter is a calculator that exchanges the'
+    + ' value of one currency into the relative value of the chosen currency.';
+    moneyYouHaveTag.classList.remove('border-danger');
+  }
+
+  return moneyHave;
+};
 
 
 async function getValueFromNBP() {
@@ -20,246 +94,137 @@ async function getValueFromNBP() {
     let usd = await axios.get('http://api.nbp.pl/api/exchangerates/rates/a/usd/');
     let chf = await axios.get('http://api.nbp.pl/api/exchangerates/rates/a/chf/');
 
-    const valueAllCurrencies = {
-      pln: MAIN_UNIT,
+    const ValueAllCurrencies = {
+      pln: UNIT_OF_MAIN_CURRENCY,
       eur: eur.data.rates[0].mid,
       usd: usd.data.rates[0].mid,
       chf: chf.data.rates[0].mid
     }
 
-    console.log(valueAllCurrencies);
-
-    checkRateBtn.removeChild(loaderIcon);
-    checkRateBtn.appendChild(textMainBtn);
-    checkRateBtn.disabled = false;
-
-    calculateExchangeRate(valueAllCurrencies);
-
-  } catch (err) {
-    console.log("Natan masz blad: ", err);
+    swapLoaderIconBtn();
+    calculateExchangeRate(ValueAllCurrencies);
   }
-}
+  catch (err) {
+    console.log("ACHTUNG, ACHTUNG:\n", err);
+  }
+};
+
 
 const calculateExchangeRate = (values) => {
+  let valueSelectIn = eval(`values.${selectIn.value}`);
+  let valueSelectOut= eval(`values.${selectOut.value}`);
+  moneyWant = (moneyHave*(valueSelectIn/valueSelectOut)).toFixed(2);
+  document.querySelector('#moneyYouWant').value = moneyWant;
 
-  let currIn = eval(`values.${selectIn.value}`);
-  let currOut= eval(`values.${selectOut.value}`);
-
-  console.log(currIn);
-  console.log(currOut);
+  addToLocalStorage();
+};
 
 
-  amountMoney = (moneyYouHave.value*(currIn/currOut)).toFixed(2);
-
-  document.querySelector('#moneyYouWant').value = amountMoney;
-
-  addToHistory();
+const addRowOnTopTable = (tr) => {
+  let parent = document.querySelector('#historyTable');
+  let firstChild = parent.firstChild;
+  parent.insertBefore(tr, firstChild);
 }
 
 
-
-const checkInputValue = () => {
-  let infoBar = document.querySelector('#infoBar');
-  moneyYouHave = document.querySelector('#moneyYouHave');
-
-  if (Boolean(+(moneyYouHave.value)) === false) {
-    infoBar.innerText = "Warning!\nThe value entered is not a number.";
-    infoBar.classList.replace('alert-info', 'alert-danger');
-    moneyYouHave.classList.add('border-danger');
-    return 0;
-  }else if (infoBar.classList.contains('alert-danger')) {
-    infoBar.classList.replace('alert-danger', 'alert-info');
-    infoBar.innerText = `A money converter is a calculator that exchanges the value of one currency into the relative value of the chosen currency.`;
-    moneyYouHave.classList.remove('border-danger');
+const addRowToHistory = (RowHistory) => {
+  let tr = document.createElement('tr');
+  for (let elem in RowHistory) {
+    let td = document.createElement('td');
+    td.innerText = RowHistory[elem];
+    if (elem==='amount' || elem==='newAmount') td.classList.add('text-right','border-left');
+    if (elem==='id'     || elem==='time')      td.classList.add('text-center');
+    tr.appendChild(td);
   }
-  return  moneyYouHave.value;
+  addRowOnTopTable(tr);
+}
+
+
+const addToLocalStorage = () => {
+  RowHistory = {
+    id:         currentId,
+    time:       getTimeNow(),
+    amount:     moneyHave,
+    from:       selectIn.value.toUpperCase(),
+    newAmount:  moneyWant,
+    to:         selectOut.value.toUpperCase()
+  };
+
+  history.push(RowHistory);
+  localStorage.setItem(currentId , JSON.stringify(RowHistory));
+  currentId++;
+  addRowToHistory(RowHistory);
 };
 
 
 const getTimeNow = () => {
-  const time = new Date();
-
-  const now = {
-    year:   time.getFullYear(),
-    month:  time.getMonth(),
-    day:    time.getDate(),
-    hour:   time.getHours(),
-    minute: time.getMinutes(),
-    second: time.getSeconds(),
+  const Time = new Date();
+  const Now = {
+    year:   Time.getFullYear(),
+    month:  Time.getMonth(),
+    day:    Time.getDate(),
+    hour:   Time.getHours(),
+    minute: Time.getMinutes(),
+    second: Time.getSeconds()
   }
-
-  for (let unit in now) if (now[unit] < 10) now[unit] = '0' + now[unit];
-  const timeNow = `${now.year}.${now.month}.${now.day} | ${now.hour}:${now.minute}:${now.second}`;
+  for (let unit in Now) if (Now[unit] < 10) Now[unit] = '0' + Now[unit];
+  const timeNow = `${Now.day}.${Now.month}.${Now.year} --- ${Now.hour}:${Now.minute}:${Now.second}`;
 
   return timeNow;
 };
 
 
-const addToHistory = () => {
-
-  console.log(selectIn.value)
-  console.log(selectOut.value)
-
-
-  rowHistory = {
-    id:         currId,
-    time:       getTimeNow(),
-    amount:     moneyYouHave.value,
-    from:       selectIn.value,
-    newAmount:  amountMoney,
-    to:         selectOut.value,
-  };
-
-  history.push(rowHistory);
-
-  localStorage.setItem(currId , JSON.stringify(rowHistory));
-  currId++;
-
-
-  console.log(history);
-
-
-  let tr = document.createElement('tr');
-
-  for (let elem in rowHistory) {
-    let td = document.createElement('td');
-    td.innerText = rowHistory[elem];
-    tr.appendChild(td);
+const importFromLocalStorage = () => {
+  for (let i=0; i<localStorage.length;i++) {
+    let rowLocalStorage = JSON.parse( localStorage.getItem( localStorage.key(i)));
+    history.push({
+      id:         rowLocalStorage.id,
+      time:       rowLocalStorage.time,
+      amount:     rowLocalStorage.amount,
+      from:       rowLocalStorage.from,
+      newAmount:  rowLocalStorage.newAmount,
+      to:         rowLocalStorage.to
+    });
   }
 
-  document.querySelector('#historyTable').appendChild(tr);
+  for (let i=1; i<=history.length; i++) {
+    let RowHistory = history.find(curr => curr.id === i);
+    addRowToHistory(RowHistory);
+  }
+  currentId = localStorage.length + 1;
+}
 
-};
+
+const swapLoaderIconBtn = () => {
+  if (checkRateBtn.disabled === false) {
+    checkRateBtn.disabled = true;
+    checkRateBtn.removeChild(document.querySelector('strong'));
+    checkRateBtn.appendChild(loaderIconTag);
+  } else {
+    checkRateBtn.disabled = false;
+    checkRateBtn.removeChild(loaderIconTag);
+    checkRateBtn.appendChild(textOnMainBtn);
+  }
+}
 
 
-const clickCheckRateBtn = () => {
+loaderIconTag.classList.add('spinner-border', 'spinner-border-lg');
+textOnMainBtn.innerText = 'Check rate';
+
+selectIn.addEventListener('change', changeViewCurrencyRow);
+selectOut.addEventListener('change', changeViewCurrencyRow);
+swapInputs.addEventListener('click', swapCurrencyRow);
+
+checkRateBtn.addEventListener('click', () => {
   if (!checkInputValue()) return 0;
-
-  loaderIcon.classList.add('spinner-border', 'spinner-border-lg');
-  checkRateBtn.disabled = true;
-
-  checkRateBtn.removeChild(document.querySelector('strong'));
-  checkRateBtn.appendChild(loaderIcon);
-
+  swapLoaderIconBtn();
   getValueFromNBP();
-}
-
-
-
-const swapCurrencyRow = () => {
-  let selectIn  = document.querySelector('#selectIn');
-  let selectOut = document.querySelector('#selectOut');
-
-  let valueIn  = selectIn.value;
-  let valueOut = selectOut.value; // czy to jest potrzebne skoro nie wprowadzam 2 wartosci waluty?
-
-  let labelUp   = document.querySelector(`label[for='selectIn']`);
-  let labelDown = document.querySelector(`label[for='selectOut']`);
-
-  textUp = labelUp.innerText;
-  textDown = labelDown.innerText;
-
-  labelUp.innerText = textDown;
-  labelDown.innerText = textUp;
-
-  let flagUp   = document.querySelector('#flagIn');
-  let flagDown = document.querySelector('#flagOut');
-
-  flagUp.className = '';
-  flagDown.className = '';
-
-  flagUp.classList.add('flag',`flag-${selectOut.value}`);
-  flagDown.classList.add('flag',`flag-${selectIn.value}`);
-
-  selectIn.value =  valueOut;
-  selectOut.value = valueIn;
-}
-
-
-
-
-const changeViewCurrencyRow = (currency) => {
-  let flagClass = currency.id === 'selectIn' ? '#flagIn' : '#flagOut';
-
-  let flag = document.querySelector(flagClass);
-  let label = document.querySelector(`label[for='${currency.id}']`);
-
-  flag.classList.remove('flag-pln','flag-eur','flag-usd','flag-chf');
-  // usuniecie wszystkich klas i wstawienie flag oraz flag-pln np...
-
-  switch (currency.value) {
-
-    case 'pln':
-      flag.classList.add('flag-pln');
-      label.innerText = 'zł';
-      break;
-
-      case 'eur':
-        flag.classList.add('flag-eur');
-        label.innerText = '€';
-        break;
-
-        case 'usd':
-          flag.classList.add('flag-usd');
-          label.innerText = '$';
-          break;
-
-          case 'chf':
-            flag.classList.add('flag-chf');
-            label.innerText = 'fr';
-            break;
-          }
-        }
-
-
-
-
-document.addEventListener('DOMContentLoaded', () => {
-
-  selectIn = document.querySelector('#selectIn');
-  selectIn.addEventListener('change', () => changeViewCurrencyRow(selectIn));
-
-  selectOut = document.querySelector('#selectOut');
-  selectOut.addEventListener('change', () => changeViewCurrencyRow(selectOut));
-
-  swapInputs = document.querySelector('#swapInputs');
-  swapInputs.addEventListener('click', () => swapCurrencyRow());
-
-  checkRateBtn = document.querySelector('#checkRateBtn');
-  checkRateBtn.addEventListener('click', clickCheckRateBtn);
-
-  checkRateBtn.appendChild(textMainBtn);
-
-  if(localStorage.length!==0) {
-    for (let i=0; i<localStorage.length;i++) {
-      let rowLocalStorage = JSON.parse(
-        localStorage.getItem(
-          localStorage.key(i) ));
-
-      history.push({
-        id:         rowLocalStorage.id,
-        time:       rowLocalStorage.time,
-        amount:     rowLocalStorage.amount,
-        from:       rowLocalStorage.from.toUpperCase(),
-        newAmount:  rowLocalStorage.newAmount,
-        to:         rowLocalStorage.to.toUpperCase(),
-      });
-
-      currId = localStorage.length + 1;
-    }
-
-    for (let i=1; i<=history.length; i++) {
-      let row = history.find(curr => curr.id === i);
-      let tr = document.createElement('tr');
-      for (let e in row) {
-        let td = document.createElement('td');
-        td.innerText = row[e];
-        if (e==='amount' || e==='newAmount') td.classList.add('text-right','border-left');
-        if (e==='id' || e==='time') td.classList.add('text-center');
-
-        tr.appendChild(td);
-      };
-      document.querySelector('#historyTable').appendChild(tr);
-    }
-  }
 });
+
+document.querySelector('#clearLocalStorage').addEventListener('click', () => {
+  localStorage.clear();
+  window.location = location.href;
+});
+
+checkRateBtn.appendChild(textOnMainBtn);
+if(localStorage.length!==0) importFromLocalStorage();
